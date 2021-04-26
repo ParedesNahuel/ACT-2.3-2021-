@@ -90,3 +90,118 @@ ON T.ID= C.IDTarea
 INNER JOIN TiposTarea AS TT
 ON T.IDTipo= TT.ID
 GROUP BY TT.Nombre
+
+--11)
+SELECT DISTINCT COUNT(*),TT.Nombre FROM COLABORADORES AS COL
+INNER JOIN Colaboraciones AS C
+ON COL.ID= C.IDColaborador
+INNER JOIN Tareas AS T
+ON T.ID= C.IDTarea
+INNER JOIN TiposTarea AS TT
+ON TT.ID= T.IDTipo
+GROUP BY TT.Nombre
+GO
+
+--12)
+SELECT MO.ID,MO.Nombre,MO.TiempoEstimado FROM Modulos AS MO
+
+--13)
+SELECT MO.ID, MO.Nombre AS MODULOS, TT.Nombre AS TIPOTAREA, AVG(CO.Tiempo*1.0) FROM MODULOS AS MO
+LEFT JOIN Tareas AS T
+ON T.IDModulo= MO.ID
+LEFT JOIN TiposTarea AS TT
+ON TT.ID= T.IDTipo
+LEFT JOIN COLABORACIONES AS CO
+ON CO.IDTarea=T.ID
+GROUP BY MO.ID,MO.Nombre,TT.Nombre
+GO
+
+--14)
+SELECT MO.ID, COLAB.APELLIDO + ', ' +COLAB.NOMBRE AS 'APELLIDO Y NOMBRE' , SUM(CO.PrecioHora) AS ABONAR FROM MODULOS AS MO
+INNER JOIN Tareas AS T
+ON T.IDModulo= MO.ID
+LEFT JOIN TiposTarea AS TT
+ON TT.ID= T.IDTipo
+INNER JOIN COLABORACIONES AS CO
+ON CO.IDTarea=T.ID
+LEFT JOIN Colaboradores AS COLAB
+ON CO.IDColaborador= COLAB.ID
+GROUP BY MO.ID,COLAB.Apellido + ', ' + COLAB.Nombre
+GO
+
+--15)
+SELECT PR.Nombre, SUM(CO.Tiempo) AS TIEMPO,SUM(CO.PrecioHora*CO.Tiempo) AS PRECIO FROM Proyectos AS PR
+INNER JOIN Modulos AS MO
+ON MO.IDProyecto = PR.ID
+INNER JOIN Tareas AS T
+ON T.IDModulo= MO.ID
+INNER JOIN COLABORACIONES AS CO
+ON CO.IDTarea=T.ID
+GROUP BY PR.Nombre
+GO
+
+--16)
+SELECT PR.Nombre AS PROYECTO,COUNT (COLAB.ID),SUM(CO.Tiempo) FROM Proyectos AS PR
+INNER JOIN Modulos AS MO
+ON MO.IDProyecto = PR.ID
+INNER JOIN Tareas AS T
+ON T.IDModulo= MO.ID
+INNER JOIN COLABORACIONES AS CO
+ON CO.IDTarea=T.ID
+INNER JOIN Colaboradores AS COLAB
+ON CO.IDColaborador= COLAB.ID
+GROUP BY PR.Nombre
+HAVING COUNT (COLAB.ID)<5 AND SUM(CO.Tiempo)>100
+GO
+
+--17)
+SELECT PR.Nombre, COUNT (MO.ID) AS MODULOS, YEAR(PR.FechaInicio) AS AÑO FROM Proyectos AS PR
+INNER JOIN Modulos AS MO
+ON PR.ID= MO.IDProyecto
+WHERE YEAR(PR.FechaInicio)=2020
+GROUP BY PR.Nombre,YEAR(PR.FechaInicio)
+HAVING COUNT(MO.ID)>3
+GO
+
+--18)
+SELECT COLAB.Apellido,COLAB.Nombre, MAX(COL.Tiempo) FROM Colaboradores AS COLAB
+INNER JOIN Colaboraciones AS COL
+ON COLAB.ID= COL.IDColaborador
+WHERE COLAB.Tipo ='E'
+GROUP BY COLAB.Apellido, COLAB.Nombre
+GO
+
+--19)
+SELECT COLAB.Apellido,COLAB.Nombre,AVG(COL.IDColaborador*1.0) FROM Colaboradores AS COLAB
+INNER JOIN Colaboraciones AS COL
+ON COL.IDColaborador= COLAB.ID
+WHERE COLAB.Tipo= 'I'
+GROUP BY COLAB.Apellido,COLAB.Nombre
+ORDER BY COLAB.Apellido,COLAB.Nombre ASC
+GO
+
+select 
+	CONCAT(CO.Nombre,' ',CO.Apellido) as Colaborador,
+	AVG(CB.Tiempo * CB.PrecioHora) as 'Promedio de colaboraciones'
+from Colaboradores as CO
+	left join Colaboraciones as CB on CB.IDColaborador = CO.ID
+where CO.Tipo like 'I'
+group by CONCAT(CO.Nombre,' ',CO.Apellido)
+order by 'Colaborador' asc
+
+SELECT COLAB.Apellido,COLAB.Nombre,COUNT(COL.IDColaborador)/COUNT(COLAB) FROM Colaboradores AS COLAB
+INNER JOIN Colaboraciones AS COL
+ON COL.IDColaborador= COLAB.ID
+WHERE COLAB.Tipo= 'I'
+GROUP BY COLAB.Apellido,COLAB.Nombre
+ORDER BY COLAB.Apellido,COLAB.Nombre ASC
+GO
+
+SELECT COLAB.Apellido,COLAB.Nombre, (count(*)/count ALL COL) AS 'PROMEDIO'FROM Colaboraciones AS COL
+INNER JOIN Colaboradores AS COLAB
+ON COLAB.ID= COL.IDColaborador
+WHERE COLAB.Tipo='I'
+GROUP BY COLAB.Apellido,COLAB.Nombre
+ORDER BY COLAB.Apellido,COLAB.Nombre ASC
+GO
+---que significa en concepto y como aplicarlo'¿
